@@ -11,11 +11,16 @@
       os_image_info:    # call to os_image_info.py <-- installed with ansible
         cloud: alta3cloud     # this is a reference to creds in clouds.yml
       register: img_result   # create a var called result and save the results
+      tags:
+        - audit
+        - image
 
     - name: Show images
       debug:     # call to debug.py <--- installed with ansible, prints to the screen
-        verbosity: 1
         msg: "{{ img_result.openstack_image[0].id }}"
+      tags:
+        - audit
+        - image
 
     - name: PRECHECK - FAIL if image name does not contain 'cirros'
       fail:
@@ -26,11 +31,16 @@
       os_flavor_info: 
         cloud: alta3cloud
       register: flav_result
+      tags:
+        - audit
+        - flavor
 
     - name: Show flavors
       debug:
-        verbosity: 1 # we must throw -v to show this value.
         msg: "{{ flav_result.openstack_flavors[0].id }}"
+      tags:
+        - audit
+        - flavor
     
     - name: PRECHECK - FAIL if flavor is not 512 ram and 1 vcpu
       fail:
@@ -51,6 +61,7 @@
         public_key_file: /home/centos/.ssh/id_rsa_openstack.pub
 
     - name: "OpenStack Server - making... {{ present_or_absent}}"
+      register: vm_results
       os_server:
         cloud: alta3cloud
         state: "{{ present_or_absent }}"
