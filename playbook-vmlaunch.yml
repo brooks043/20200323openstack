@@ -1,0 +1,50 @@
+---
+- name: Our first playbook (first play)
+  hosts: localhost   # normally this is IP address(s) of the host(s) to connect to
+  
+  vars:
+    present_or_absent: present # this variable can be changed to control if the playbook adds or removes
+                               # infrastructure
+  tasks:
+
+    - name: Use Ansible to "openstack image list"
+      os_image_info:    # call to os_image_info.py <-- installed with ansible
+        cloud: alta3cloud     # this is a reference to creds in clouds.yml
+      register: img_result   # create a var called result and save the results
+
+    - name: Show images
+      debug:     # call to debug.py <--- installed with ansible, prints to the screen
+        verbosity: 1
+        msg: "{{ img_result.openstack_image[0].id }}"
+
+    - name: Use Ansible to "openstack flavor list"
+      os_flavor_info: 
+        cloud: alta3cloud
+      register: flav_result
+
+    - name: Show flavors
+      debug:
+        verbosity: 1 # we must throw -v to show this value.
+        msg: "{{ flav_result.openstack_flavors[0].id }}"
+
+    # Generate an OpenSSH keypair with the default values (4096 bits, rsa)
+    - name: Generate an OpenSSH keypair that we can upload to OpenStack
+      openssh_keypair:
+        path: /home/centos/.ssh/id_rsa_openstack
+
+    #Creates a key pair with the running users public key
+    - name: "OpenStack Keypair - making... {{ present_or_absent }}"
+      os_keypair: 
+        cloud: alta3cloud
+        state: "{{ present_or_absent }}"
+        name: a3c_ansible_key
+        public_key_file: /home/centos/.ssh/id_rsa_openstack.pub
+
+    - name: "OpensStack Keypair - making... {{ present_or_absent}}"
+      os_server:
+        cloud: alta3cloud
+        state: "{{ present_or_absent }}"
+        name: ansible_vm1
+        image: "{{ img_result.openstack_image[0].id }}"
+        flavor: "{{ flav_result.openstack_flavors[0].id }}"
+        key_name: a3c_ansible_key
