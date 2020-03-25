@@ -1,0 +1,7 @@
+---
+- name: My playbook that runs a role I created (os-image-uploader)
+  hosts: localhost
+
+  roles:
+    - os-image-uploader
+
