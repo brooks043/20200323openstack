@@ -1,7 +1,16 @@
 ---
-- name: My playbook that runs a role I created (os-image-uploader)
+- name: Using the os-image-uploader role i just created
   hosts: localhost
 
-  roles:
-    - os-image-uploader
+  tasks:
+    - name: Imagine this is some important task
+      debug:
+        msg: "I am an important task!"
 
+    - name: Run the role os-image-uploader
+      import_role:
+        name: os-image-uploader
+
+    - name: Imagine this is another important task
+      debug:
+        msg: "I am another important task!" 
