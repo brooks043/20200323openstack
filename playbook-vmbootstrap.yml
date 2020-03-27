@@ -1,0 +1,22 @@
+---
+- name: A playbook to install applications.
+  hosts: all #localhost
+
+  gather_facts: yes #default for gather_facts is yes
+
+  tasks:
+  - name: install epel-release
+    yum:
+      name: epel-release
+      state: present
+    become: yes # this causes a Task to run as sudo
+    vars:
+      ansible_python_interpreter: /usr/bin/python
+
+  - name: install an app or two
+    yum:
+      name: [moon-buggy, sl, figlet]
+      state: present
+    become: yes # this causes a Task to run as sudo
+    vars:
+      ansible_python_interpreter: /usr/bin/python
